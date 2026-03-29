@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In – MANASA</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<nav class="navbar scrolled">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+    <div class="nav-actions" style="margin-left:auto">
+      <a href="index.html" class="btn-ghost">← Back to Home</a>
+    </div>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="auth-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="grid-overlay"></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <a href="index.html" class="logo" style="font-size:28px">MANASA<span class="logo-dot">.</span></a>
+      <p style="color:var(--text-muted);margin-top:6px;font-size:14px">Your event, your way.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="signinTab" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- SOCIAL LOGIN -->
+    <div class="social-btns">
+      <button class="social-btn" onclick="socialLogin('Google')"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Google</button>
+      <button class="social-btn" onclick="socialLogin('Phone')"><i class="fas fa-phone" style="color:#10b981"></i> Phone</button>
+    </div>
+    <div class="auth-divider">or continue with email</div>
+
+    <!-- SIGN IN FORM -->
+    <div id="signinForm">
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" id="signinEmail">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <div style="position:relative">
+          <input type="password" class="form-input" placeholder="••••••••" id="signinPassword" style="padding-right:44px">
+          <button onclick="togglePass('signinPassword')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div style="text-align:right;margin-bottom:20px">
+        <a href="#" style="font-size:13px;color:var(--accent)">Forgot password?</a>
+      </div>
+      <button class="btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:16px" onclick="signIn()">Sign In</button>
+    </div>
+
+    <!-- SIGN UP FORM -->
+    <div id="signupForm" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-field">
+          <label>First Name</label>
+          <input type="text" class="form-input" placeholder="Priya" id="signupFirst">
+        </div>
+        <div class="form-field">
+          <label>Last Name</label>
+          <input type="text" class="form-input" placeholder="Sharma" id="signupLast">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" id="signupEmail">
+      </div>
+      <div class="form-field">
+        <label>Phone Number</label>
+        <input type="tel" class="form-input" placeholder="+91 98765 43210" id="signupPhone">
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" class="form-input" placeholder="Min. 8 characters" id="signupPassword">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-muted);cursor:pointer">
+          <input type="checkbox" id="termsCheck" style="margin-top:3px;accent-color:var(--accent)">
+          I agree to MANASA's <a href="#" style="color:var(--accent)">Terms of Service</a> and <a href="#" style="color:var(--accent)">Privacy Policy</a>
+        </label>
+      </div>
+      <button class="btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:16px" onclick="signUp()">Create Account</button>
+    </div>
+
+    <p style="text-align:center;font-size:13px;color:var(--text-dim);margin-top:20px">
+      By signing in you agree to our <a href="#" style="color:var(--accent)">Terms</a> & <a href="#" style="color:var(--accent)">Privacy Policy</a>
+    </p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+function switchTab(tab) {
+  document.getElementById('signinTab').classList.toggle('active', tab === 'signin');
+  document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+  document.getElementById('signinForm').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+function togglePass(id) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function signIn() {
+  const email = document.getElementById('signinEmail').value;
+  const password = document.getElementById('signinPassword').value;
+  if (!email || !password) { showToast('Please fill in all fields'); return; }
+  // Simulate login
+  localStorage.setItem('manasaUser', JSON.stringify({ email, name: email.split('@')[0], joined: new Date().toISOString() }));
+  showToast('Welcome back! 🎉');
+  setTimeout(() => window.location.href = 'dashboard.html', 1200);
+}
+
+function signUp() {
+  const first = document.getElementById('signupFirst').value;
+  const last = document.getElementById('signupLast').value;
+  const email = document.getElementById('signupEmail').value;
+  const terms = document.getElementById('termsCheck').checked;
+  if (!first || !email) { showToast('Please fill in required fields'); return; }
+  if (!terms) { showToast('Please accept the terms to continue'); return; }
+  localStorage.setItem('manasaUser', JSON.stringify({ email, name: first + ' ' + last, joined: new Date().toISOString() }));
+  showToast(`Welcome to MANASA, ${first}! 🎉`);
+  setTimeout(() => window.location.href = 'index.html', 1200);
+}
+
+function socialLogin(provider) {
+  localStorage.setItem('manasaUser', JSON.stringify({ name: 'Demo User', email: 'demo@manasa.events', provider, joined: new Date().toISOString() }));
+  showToast(`Signed in with ${provider}! 🎉`);
+  setTimeout(() => window.location.href = 'dashboard.html', 1200);
+}
+</script>
+</body>
+</html>
