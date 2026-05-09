@@ -9,11 +9,61 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+<script>
+// If server is waking up (Render free tier), show a loading screen and auto-retry
+(function() {
+  fetch('/health', { method: 'GET', cache: 'no-store' })
+    .then(function(r) {
+      if (!r.ok) showWakeUp();
+    })
+    .catch(function() { showWakeUp(); });
+
+  function showWakeUp() {
+    var overlay = document.createElement('div');
+    overlay.id = 'wakeup-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;font-family:sans-serif';
+    overlay.innerHTML = '<div style="text-align:center;padding:40px">'
+      + '<div style="font-size:48px;margin-bottom:20px">🎉</div>'
+      + '<h2 style="color:#fff;font-size:22px;margin-bottom:8px">MANASA Events</h2>'
+      + '<p style="color:#94a3b8;font-size:15px;margin-bottom:24px">Server is waking up, please wait...</p>'
+      + '<div style="width:200px;height:4px;background:#1e293b;border-radius:2px;overflow:hidden;margin:0 auto 16px">'
+      + '<div id="wake-bar" style="height:100%;background:#f97316;border-radius:2px;width:0%;transition:width 0.5s"></div></div>'
+      + '<p id="wake-msg" style="color:#64748b;font-size:13px">Connecting...</p>'
+      + '</div>';
+    document.body.appendChild(overlay);
+    var pct = 0;
+    var bar = null;
+    var msg = null;
+    setTimeout(function() {
+      bar = document.getElementById('wake-bar');
+      msg = document.getElementById('wake-msg');
+      tryPing();
+    }, 100);
+    function tryPing() {
+      pct = Math.min(pct + 8, 90);
+      if (bar) bar.style.width = pct + '%';
+      if (msg) msg.textContent = 'Waking up server... (' + Math.round(pct) + '%)';
+      fetch('/health', { cache: 'no-store' })
+        .then(function(r) {
+          if (r.ok) {
+            if (bar) bar.style.width = '100%';
+            if (msg) msg.textContent = 'Ready!';
+            setTimeout(function() {
+              var el = document.getElementById('wakeup-overlay');
+              if (el) el.remove();
+            }, 500);
+          } else { setTimeout(tryPing, 3000); }
+        })
+        .catch(function() { setTimeout(tryPing, 3000); });
+    }
+  }
+})();
+</script>
 
 <!-- NAV -->
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
-    <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+    <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
     <ul class="nav-links">
       <li><a href="index.html" class="active">Home</a></li>
       <li><a href="events.html">Events</a></li>
@@ -23,6 +73,7 @@
     </ul>
     <div class="nav-actions">
       <a href="login.html" class="btn-ghost">Sign In</a>
+      <a href="admin-login.html" class="btn-ghost" style="color:var(--accent);border-color:var(--accent)"><i class="fas fa-shield-alt"></i> Admin</a>
       <a href="login.html" class="btn-primary">Get Started</a>
     </div>
     <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
@@ -72,15 +123,15 @@
   <div class="hero-cards">
     <div class="float-card fc1">
       <div class="fc-img" style="background:linear-gradient(135deg,#f97316,#ef4444)"><i class="fas fa-music"></i></div>
-      <div><strong>EDM Night Out</strong><br><small>Sat &middot; Palace Grounds</small></div>
+      <div><strong>EDM Night Out</strong><br><small>9 May &middot; Palace Grounds</small></div>
     </div>
     <div class="float-card fc2">
       <div class="fc-img" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6)"><i class="fas fa-laptop-code"></i></div>
-      <div><strong>DevFest 2025</strong><br><small>Sun &middot; NIMHANS Conv.</small></div>
+      <div><strong>DevFest 2026</strong><br><small>11 May &middot; NIMHANS Conv.</small></div>
     </div>
     <div class="float-card fc3">
       <div class="fc-img" style="background:linear-gradient(135deg,#10b981,#06b6d4)"><i class="fas fa-utensils"></i></div>
-      <div><strong>Street Food Carnival</strong><br><small>Fri–Sun &middot; Cubbon Park</small></div>
+      <div><strong>Street Food Carnival</strong><br><small>3 May &middot; Cubbon Park</small></div>
     </div>
   </div>
 </section>
@@ -112,7 +163,7 @@
         <span class="cat-count">210 events</span>
       </a>
       <a href="events.html?cat=sports" class="cat-card cat-sports">
-        <div class="cat-icon"><i class="fas fa-running"></i></div>
+        <div class="cat-icon"><i class="fas fa-person-running"></i></div>
         <h3>Sports</h3>
         <p>Matches, marathons &amp; fitness</p>
         <span class="cat-count">140 events</span>
@@ -124,13 +175,13 @@
         <span class="cat-count">95 events</span>
       </a>
       <a href="events.html?cat=workshop" class="cat-card cat-workshop">
-        <div class="cat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="cat-icon"><i class="fas fa-chalkboard-user"></i></div>
         <h3>Workshops</h3>
         <p>Skills, crafts &amp; learning</p>
         <span class="cat-count">260 events</span>
       </a>
       <a href="events.html?cat=comedy" class="cat-card cat-comedy">
-        <div class="cat-icon"><i class="fas fa-laugh-beam"></i></div>
+        <div class="cat-icon"><i class="fas fa-face-laugh-beam"></i></div>
         <h3>Comedy</h3>
         <p>Stand-up &amp; improv shows</p>
         <span class="cat-count">70 events</span>
@@ -232,7 +283,7 @@
       <div class="review-card">
         <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
         <p>"Love the personalized recommendations. MANASA knows my vibe — mostly tech meetups and food carnivals!"</p>
-        <div class="reviewer"><div class="avatar" style="background:#10b981">P</div><span>Priya S., Whitefield</span></div>
+        <div class="reviewer"><div class="avatar" style="background:#10b981">K</div><span>Kavya S., Whitefield</span></div>
       </div>
     </div>
   </div>
@@ -291,7 +342,7 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+      <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
       <p>Bengaluru's premier event discovery &amp; ticketing platform. Find your next experience.</p>
       <div class="footer-social">
         <a href="#"><i class="fab fa-instagram"></i></a>
@@ -325,7 +376,7 @@
       <h4>Get in Touch</h4>
       <p><i class="fas fa-phone"></i> 7411038339</p>
       <p><i class="fas fa-map-marker-alt"></i> <a href="https://share.google/alKB1wMb4D0Hpw6tw" target="_blank">View on Map</a></p>
-      <p><i class="fas fa-envelope"></i> hello@manasa.events</p>
+      <p><i class="fas fa-envelope"></i> manasakala5634@gmail.com</p>
     </div>
   </div>
   <div class="footer-bottom">

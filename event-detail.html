@@ -12,7 +12,7 @@
 
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-inner">
-    <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+    <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="events.html" class="active">Events</a></li>
@@ -110,7 +110,7 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+      <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
       <p>Bengaluru's premier event discovery &amp; ticketing platform.</p>
     </div>
     <div class="footer-links">
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     + '<button class="qty-btn" onclick="changeQty(1)">+</button>'
     + '</div>'
     + '<div class="booking-total"><span>Total</span><span id="totalPrice">' + (e.price === 0 ? 'FREE' : '&#8377;' + e.price) + '</span></div>'
-    + '<button class="btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:16px" onclick="confirmBooking()">'
+    + '<button class="btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:16px" onclick="goToBooking()'>'
     + (e.price === 0 ? 'Register for Free' : 'Book &amp; Pay') + '</button>'
     + '<button class="btn-outline" style="width:100%;justify-content:center;margin-top:10px;padding:14px" onclick="toggleSaveDetail()">'
     + '<i class="far fa-heart" id="saveIcon"></i> Save Event</button>'
@@ -221,17 +221,12 @@ function changeQty(delta) {
   document.getElementById('totalPrice').textContent = currentEvent.price === 0 ? 'FREE' : '&#8377;' + total.toLocaleString('en-IN');
 }
 
+function goToBooking() {
+  window.location.href = 'booking.html?id=' + currentEvent.id;
+}
+
 function confirmBooking() {
-  if (!localStorage.getItem('manasaUser')) {
-    showToast('Please sign in to book tickets 🎟️');
-    setTimeout(function() { window.location.href = 'login.html'; }, 1200);
-    return;
-  }
-  var bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-  bookings.push({ eventId: currentEvent.id, qty: qty, timestamp: Date.now(), total: currentEvent.price * qty });
-  localStorage.setItem('bookings', JSON.stringify(bookings));
-  showToast('Booking confirmed! ' + qty + ' ticket' + (qty > 1 ? 's' : '') + ' for ' + currentEvent.title + ' 🎉');
-  setTimeout(function() { window.location.href = 'dashboard.html'; }, 1500);
+  goToBooking();
 }
 
 function toggleSaveDetail() {

@@ -11,7 +11,7 @@
 <body>
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-inner">
-    <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+    <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="events.html">Events</a></li>
@@ -49,36 +49,40 @@
     <h2>Let's Talk</h2>
     <p>Whether you're an event-goer with a question, an organizer looking to partner, or just curious about MANASA — we'd love to hear from you.</p>
 
-    <div class="contact-item">
-      <div class="contact-icon"><i class="fas fa-phone"></i></div>
-      <div>
-        <h4>Phone</h4>
-        <p><a href="tel:7411038339" style="color:var(--accent)">7411038339</a></p>
-        <p style="font-size:12px;color:var(--text-dim)">Mon–Sat, 9 AM – 8 PM IST</p>
+    <!-- QUICK CONNECT BUTTONS -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin:24px 0">
+      <div class="contact-btn-action contact-btn-email" onclick="openEmail()" role="link" tabindex="0" onkeypress="if(event.key==='Enter')openEmail()">
+        <div class="cba-icon"><i class="fas fa-envelope"></i></div>
+        <div class="cba-text">
+          <span class="cba-label">Send us an Email</span>
+          <span class="cba-sub">manasakala5634@gmail.com</span>
+        </div>
+        <i class="fas fa-arrow-right cba-arrow"></i>
+      </div>
+      <div class="contact-btn-action contact-btn-phone" onclick="openPhone()" role="link" tabindex="0" onkeypress="if(event.key==='Enter')openPhone()">
+        <div class="cba-icon"><i class="fas fa-phone"></i></div>
+        <div class="cba-text">
+          <span class="cba-label">Call Us Directly</span>
+          <span class="cba-sub">+91 7411038339 &nbsp;·&nbsp; Mon–Sat, 9 AM–8 PM IST</span>
+        </div>
+        <i class="fas fa-arrow-right cba-arrow"></i>
+      </div>
+      <div class="contact-btn-action contact-btn-whatsapp" onclick="openWhatsApp()" role="link" tabindex="0" onkeypress="if(event.key==='Enter')openWhatsApp()">
+        <div class="cba-icon"><i class="fab fa-whatsapp"></i></div>
+        <div class="cba-text">
+          <span class="cba-label">Chat on WhatsApp</span>
+          <span class="cba-sub">Quick replies &nbsp;·&nbsp; Mon–Sat</span>
+        </div>
+        <i class="fas fa-arrow-right cba-arrow"></i>
       </div>
     </div>
-    <div class="contact-item">
-      <div class="contact-icon"><i class="fas fa-envelope"></i></div>
-      <div>
-        <h4>Email</h4>
-        <p><a href="mailto:hello@manasa.events" style="color:var(--accent)">hello@manasa.events</a></p>
-        <p style="font-size:12px;color:var(--text-dim)">We reply within 2 hours</p>
-      </div>
-    </div>
+
     <div class="contact-item">
       <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
       <div>
         <h4>Office Location</h4>
         <p>Bengaluru, Karnataka</p>
         <a href="https://share.google/alKB1wMb4D0Hpw6tw" target="_blank" style="font-size:13px;color:var(--accent);display:flex;align-items:center;gap:6px;margin-top:4px"><i class="fas fa-external-link-alt"></i> View on Google Maps</a>
-      </div>
-    </div>
-    <div class="contact-item">
-      <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
-      <div>
-        <h4>WhatsApp</h4>
-        <p><a href="https://wa.me/917411038339" target="_blank" style="color:var(--accent)">Chat on WhatsApp</a></p>
-        <p style="font-size:12px;color:var(--text-dim)">Quick responses, Mon–Sat</p>
       </div>
     </div>
 
@@ -95,7 +99,7 @@
       <div class="form-row">
         <div class="form-field">
           <label>First Name</label>
-          <input class="form-input" placeholder="Priya" id="cfFirst">
+          <input class="form-input" placeholder="Kavya" id="cfFirst">
         </div>
         <div class="form-field">
           <label>Last Name</label>
@@ -123,7 +127,13 @@
       </div>
       <div class="form-field">
         <label>Message</label>
-        <textarea class="form-textarea" placeholder="Tell us how we can help&#8230;" id="cfMessage" style="min-height:130px"></textarea>
+        <textarea class="form-textarea" id="cfMessage" style="min-height:130px">Hi MANASA team,
+
+I would like to get in touch regarding an inquiry. Please feel free to reach out to me at the email provided above.
+
+Looking forward to hearing from you!
+
+Best regards,</textarea>
       </div>
       <button class="btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:16px" onclick="submitContact()">
         <i class="fas fa-paper-plane"></i> Send Message
@@ -146,7 +156,7 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="index.html" class="logo">MANASA<span class="logo-dot">.</span></a>
+      <a href="index.html" class="logo logo-img-wrap"><img src="logo2.jpeg" alt="MANASA Events" class="nav-logo-img"></a>
       <p>Bengaluru's premier event discovery &amp; ticketing platform.</p>
       <div class="footer-social">
         <a href="#"><i class="fab fa-instagram"></i></a>
@@ -165,7 +175,7 @@
       <h4>Contact</h4>
       <p><i class="fas fa-phone"></i> 7411038339</p>
       <p><i class="fas fa-map-marker-alt"></i><a href="https://share.google/alKB1wMb4D0Hpw6tw" target="_blank"> View on Map</a></p>
-      <p><i class="fas fa-envelope"></i> hello@manasa.events</p>
+      <p><i class="fas fa-envelope"></i> manasakala5634@gmail.com</p>
     </div>
   </div>
   <div class="footer-bottom">
@@ -202,13 +212,34 @@ function toggleFaq(el) {
   el.classList.toggle('open');
 }
 
+function openEmail() {
+  window.location.href = 'mailto:manasakala5634@gmail.com';
+  setTimeout(function() {
+    // If mailto didn't open after 1s, copy to clipboard as fallback
+  }, 1000);
+}
+
+function openPhone() {
+  window.location.href = 'tel:+917411038339';
+}
+
+function openWhatsApp() {
+  window.open('https://wa.me/917411038339?text=Hi%20MANASA%2C%20I%20have%20an%20inquiry%20about%20your%20events.', '_blank');
+}
+
 function submitContact() {
-  var name = document.getElementById('cfFirst').value.trim();
+  var firstName = document.getElementById('cfFirst').value.trim();
+  var lastName = document.getElementById('cfLast').value.trim();
   var email = document.getElementById('cfEmail').value.trim();
+  var phone = document.getElementById('cfPhone').value.trim();
+  var topic = document.getElementById('cfTopic').value;
   var msg = document.getElementById('cfMessage').value.trim();
-  if (!name || !email || !msg) { showToast('Please fill in all required fields'); return; }
+  if (!firstName || !email || !msg) { showToast('Please fill in Name, Email and Message'); return; }
   if (!email.includes('@')) { showToast('Please enter a valid email address'); return; }
-  showToast('Message sent! We\'ll get back to you shortly 📬');
+  var subject = encodeURIComponent('[MANASA Contact] ' + topic + ' – from ' + firstName + ' ' + lastName);
+  var body = encodeURIComponent('Name: ' + firstName + ' ' + lastName + '\nEmail: ' + email + '\nPhone: ' + (phone||'Not provided') + '\nTopic: ' + topic + '\n\nMessage:\n' + msg);
+  window.location.href = 'mailto:manasakala5634@gmail.com?subject=' + subject + '&body=' + body;
+  showToast('Opening email client... Message ready to send 📬');
   document.getElementById('cfFirst').value = '';
   document.getElementById('cfLast').value = '';
   document.getElementById('cfEmail').value = '';
