@@ -259,17 +259,43 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        # Normalize root
         if self.path == '/' or self.path == '':
             self.path = '/index.html'
+
         # Health check endpoint — Render uses this to know server is alive
         if self.path == '/health' or self.path == '/ping':
             self._json({'status': 'ok', 'service': 'MANASA Events'})
             return
+
         # Serve API GETs
         if self.path.startswith('/api/'):
             self._handle_api_get()
-        else:
+            return
+
+        # Strip query string to find the actual file path
+        clean_path = self.path.split('?')[0].split('#')[0]
+
+        # Build absolute filesystem path
+        fs_path = os.path.join(FOLDER, clean_path.lstrip('/'))
+
+        # If the exact file exists, serve it normally
+        if os.path.isfile(fs_path):
             super().do_GET()
+            return
+
+        # If path has no extension, try adding .html
+        if not os.path.splitext(clean_path)[1]:
+            html_path = fs_path + '.html'
+            if os.path.isfile(html_path):
+                self.path = clean_path + '.html'
+                super().do_GET()
+                return
+
+        # Fallback: serve index.html for any unknown path so browser refresh
+        # and direct URL access never show a blank/error page
+        self.path = '/index.html'
+        super().do_GET()
 
     def do_POST(self):
         if self.path.startswith('/api/'):
@@ -330,11 +356,13 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
             pass
 
     def send_error(self, code, message=None, explain=None):
-        # Override to send friendly JSON errors instead of raw HTML errors
-        if code == 404:
-            self._json({'error': 'Not found', 'code': 404}, 404)
-        else:
+        # Only return JSON errors for API paths; for everything else
+        # let the parent handle it (or it will just serve index.html via do_GET fallback)
+        if hasattr(self, 'path') and self.path and self.path.startswith('/api/'):
             self._json({'error': message or 'Server error', 'code': code}, code)
+        else:
+            # Suppress the default HTML error page — our do_GET fallback handles it
+            pass
 
 # ─────────────────────────────────────────────────────────────
 # Keep-alive ping — prevents Render free tier from sleeping
