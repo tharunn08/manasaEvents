@@ -372,10 +372,10 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
             self._json({'error': 'Unknown endpoint'}, 404)
 
     def _json(self, obj, code=200):
-        body = json.dumps(obj).encode()
+        body = json.dumps(obj, ensure_ascii=False).encode('utf-8')
         self.send_response(code)
         self._cors()
-        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', len(body))
         self.end_headers()
         self.wfile.write(body)
