@@ -372,21 +372,34 @@ async function confirmBooking() {
 function sendAdminNotifications(b) {
   var ADMIN = '917411038339';
 
-  // Build WhatsApp message — direct emoji chars (no escape sequences)
+  // Build WhatsApp message — emojis via String.fromCodePoint (100% encoding-safe)
+  var E = String.fromCodePoint;
+  var party    = E(0x1F389); // 🎉
+  var box      = E(0x1F4E6); // 📦
+  var person   = E(0x1F464); // 👤
+  var email_e  = E(0x1F4E7); // 📧
+  var phone_e  = E(0x1F4F1); // 📱
+  var ticket   = E(0x1F3AB); // 🎫
+  var calendar = E(0x1F4C5); // 📅
+  var pin      = E(0x1F4CD); // 📍
+  var tickets  = E(0x1F39F); // 🎟
+  var money    = E(0x1F4B0); // 💰
+  var check    = E(0x2705);  // ✅
+  var dash     = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
   var waMsg =
-    '🎉 *NEW BOOKING — MANASA Events*\n' +
-    '──────────────────────\n' +
-    '📦 *Order ID:* '  + b.orderId + '\n' +
-    '👤 *Name:* '      + b.name    + '\n' +
-    '📧 *Email:* '     + b.email   + '\n' +
-    '📱 *Phone:* '     + b.phone   + '\n' +
-    '🎫 *Event:* '     + b.event   + '\n' +
-    '📅 *Date:* '      + b.date    + ' · ' + b.time + '\n' +
-    '📍 *Venue:* '     + b.venue   + '\n' +
-    '🎟 *Tickets:* '   + b.tickets + '\n' +
-    '💰 *Total:* '     + b.total   + '\n' +
-    '──────────────────────\n' +
-    '✅ Status: CONFIRMED';
+    party    + ' *NEW BOOKING \u2014 MANASA Events*\n' +
+    dash     + '\n' +
+    box      + ' *Order ID:* '  + b.orderId + '\n' +
+    person   + ' *Name:* '      + b.name    + '\n' +
+    email_e  + ' *Email:* '     + b.email   + '\n' +
+    phone_e  + ' *Phone:* '     + b.phone   + '\n' +
+    ticket   + ' *Event:* '     + b.event   + '\n' +
+    calendar + ' *Date:* '      + b.date    + ' \u00b7 ' + b.time + '\n' +
+    pin      + ' *Venue:* '     + b.venue   + '\n' +
+    tickets  + ' *Tickets:* '   + b.tickets + '\n' +
+    money    + ' *Total:* '     + b.total   + '\n' +
+    dash     + '\n' +
+    check    + ' Status: CONFIRMED';
 
   var smsMsg =
     'NEW BOOKING - MANASA Events\n' +
