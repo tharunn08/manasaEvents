@@ -372,19 +372,18 @@ async function confirmBooking() {
 function sendAdminNotifications(b) {
   var ADMIN = '917411038339';
 
-  // Build WhatsApp message — emojis via String.fromCodePoint (100% encoding-safe)
-  var E = String.fromCodePoint;
-  var party    = E(0x1F389); // 🎉
-  var box      = E(0x1F4E6); // 📦
-  var person   = E(0x1F464); // 👤
-  var email_e  = E(0x1F4E7); // 📧
-  var phone_e  = E(0x1F4F1); // 📱
-  var ticket   = E(0x1F3AB); // 🎫
-  var calendar = E(0x1F4C5); // 📅
-  var pin      = E(0x1F4CD); // 📍
-  var tickets  = E(0x1F39F); // 🎟
-  var money    = E(0x1F4B0); // 💰
-  var check    = E(0x2705);  // ✅
+  // Build WhatsApp message — literal UTF-8 emoji characters
+  var party    = '🎉';
+  var box      = '📦';
+  var person   = '👤';
+  var email_e  = '📧';
+  var phone_e  = '📱';
+  var ticket   = '🎫';
+  var calendar = '📅';
+  var pin      = '📍';
+  var tickets  = '🎟';
+  var money    = '💰';
+  var check    = '✅';
   var dash     = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
   var waMsg =
     party    + ' *NEW BOOKING \u2014 MANASA Events*\n' +
