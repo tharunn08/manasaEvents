@@ -372,36 +372,21 @@ async function confirmBooking() {
 function sendAdminNotifications(b) {
   var ADMIN = '917411038339';
 
-  // Build WhatsApp message with proper emojis
-  var e = [
-    '\uD83C\uDF89', // 🎉
-    '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500',
-    '\uD83D\uDCE6', // 📦
-    '\uD83D\uDC64', // 👤
-    '\uD83D\uDCE7', // 📧
-    '\uD83D\uDCF1', // 📱
-    '\uD83C\uDFAB', // 🎫
-    '\uD83D\uDCC5', // 📅
-    '\uD83D\uDCCD', // 📍
-    '\uD83C\uDFAB', // 🎫 (tickets)
-    '\uD83D\uDCB0', // 💰
-    '\u2705'        // ✅
-  ];
-
+  // Build WhatsApp message — direct emoji chars (no escape sequences)
   var waMsg =
-    e[0] + ' *NEW BOOKING \u2014 MANASA Events*\n' +
-    e[1] + '\n' +
-    e[2] + ' *Order ID:* '  + b.orderId + '\n' +
-    e[3] + ' *Name:* '      + b.name    + '\n' +
-    e[4] + ' *Email:* '     + b.email   + '\n' +
-    e[5] + ' *Phone:* '     + b.phone   + '\n' +
-    e[6] + ' *Event:* '     + b.event   + '\n' +
-    e[7] + ' *Date:* '      + b.date    + ' \u00b7 ' + b.time + '\n' +
-    e[8] + ' *Venue:* '     + b.venue   + '\n' +
-    e[9] + ' *Tickets:* '   + b.tickets + '\n' +
-    e[10]+ ' *Total:* '     + b.total   + '\n' +
-    e[1] + '\n' +
-    e[11]+ ' Status: CONFIRMED';
+    '🎉 *NEW BOOKING — MANASA Events*\n' +
+    '──────────────────────\n' +
+    '📦 *Order ID:* '  + b.orderId + '\n' +
+    '👤 *Name:* '      + b.name    + '\n' +
+    '📧 *Email:* '     + b.email   + '\n' +
+    '📱 *Phone:* '     + b.phone   + '\n' +
+    '🎫 *Event:* '     + b.event   + '\n' +
+    '📅 *Date:* '      + b.date    + ' · ' + b.time + '\n' +
+    '📍 *Venue:* '     + b.venue   + '\n' +
+    '🎟 *Tickets:* '   + b.tickets + '\n' +
+    '💰 *Total:* '     + b.total   + '\n' +
+    '──────────────────────\n' +
+    '✅ Status: CONFIRMED';
 
   var smsMsg =
     'NEW BOOKING - MANASA Events\n' +
