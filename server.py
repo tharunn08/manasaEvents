@@ -1,20 +1,13 @@
 #!/usr/bin/env python3
 """
-MANASA Events — Shared Backend Server
-======================================
-• Runs a local HTTP server on port 8000
-• Serves all HTML/CSS/JS files
-• Provides a REST API so ALL users share ONE database (manasa.db)
-• Users sign up / log in → data saved to SQLite on THIS machine
-• Admin panel reads from the same shared SQLite
-
-HOW TO USE:
-  Windows  : Double-click  "START SERVER (Windows).bat"
-  Mac/Linux: Run  "bash START SERVER (Mac-Linux).sh"
-  Or manually: python3 server.py
-
-Then share your IP address (shown at startup) with friends.
-They open:  http://YOUR_IP:8000
+MANASA Events — Shared Backend Server (Render-Optimised)
+=========================================================
+Fixes applied vs original:
+  1. ThreadingTCPServer  — handles concurrent requests; logo + CSS load in parallel
+  2. Cache headers       — static assets cached 24 h; pages not cached (no stale HTML)
+  3. Correct MIME types  — jpeg/png/css/js/woff served with proper Content-Type
+  4. Gzip support        — responses compressed when client supports it (faster load)
+  5. Keep-alive ping     — unchanged (pings /health every 14 min to prevent sleep)
 """
 
 import http.server
@@ -26,12 +19,20 @@ import os
 import threading
 import socket
 import webbrowser
+import mimetypes
+import gzip
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 
-PORT      = int(os.environ.get('PORT', 8000))
-DB_FILE   = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'manasa.db')
-FOLDER    = os.path.dirname(os.path.abspath(__file__))
+PORT    = int(os.environ.get('PORT', 8000))
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'manasa.db')
+FOLDER  = os.path.dirname(os.path.abspath(__file__))
+
+# Static assets that are safe to cache for 24 hours
+CACHEABLE_EXTENSIONS = {
+    '.jpeg', '.jpg', '.png', '.gif', '.svg', '.ico', '.webp',
+    '.css', '.js', '.woff', '.woff2', '.ttf', '.eot'
+}
 
 # ─────────────────────────────────────────────────────────────
 # Database setup
@@ -81,7 +82,7 @@ def sha256(text):
     return hashlib.sha256(text.encode()).hexdigest()
 
 # ─────────────────────────────────────────────────────────────
-# API handlers
+# API handlers  (unchanged from original)
 # ─────────────────────────────────────────────────────────────
 def api_register(data):
     try:
@@ -263,39 +264,76 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/' or self.path == '':
             self.path = '/index.html'
 
-        # Health check endpoint — Render uses this to know server is alive
-        if self.path == '/health' or self.path == '/ping':
+        # Health check endpoint
+        if self.path in ('/health', '/ping'):
             self._json({'status': 'ok', 'service': 'MANASA Events'})
             return
 
-        # Serve API GETs
+        # API GETs
         if self.path.startswith('/api/'):
             self._handle_api_get()
             return
 
-        # Strip query string to find the actual file path
+        # Strip query string / hash
         clean_path = self.path.split('?')[0].split('#')[0]
+        fs_path    = os.path.join(FOLDER, clean_path.lstrip('/'))
 
-        # Build absolute filesystem path
-        fs_path = os.path.join(FOLDER, clean_path.lstrip('/'))
-
-        # If the exact file exists, serve it normally
+        # Exact file exists → serve it
         if os.path.isfile(fs_path):
-            super().do_GET()
+            self._serve_file(fs_path, clean_path)
             return
 
-        # If path has no extension, try adding .html
+        # No extension → try .html
         if not os.path.splitext(clean_path)[1]:
             html_path = fs_path + '.html'
             if os.path.isfile(html_path):
-                self.path = clean_path + '.html'
-                super().do_GET()
+                self._serve_file(html_path, clean_path + '.html')
                 return
 
-        # Fallback: serve index.html for any unknown path so browser refresh
-        # and direct URL access never show a blank/error page
-        self.path = '/index.html'
-        super().do_GET()
+        # Fallback: index.html (so browser refresh never shows blank)
+        self._serve_file(os.path.join(FOLDER, 'index.html'), '/index.html')
+
+    # ── FIX 1 + 2 + 3: proper MIME, cache headers, and gzip ──────────────────
+    def _serve_file(self, fs_path, url_path):
+        """Serve a static file with correct MIME type, cache headers, and gzip."""
+        try:
+            ext = os.path.splitext(fs_path)[1].lower()
+
+            # MIME type
+            mime, _ = mimetypes.guess_type(fs_path)
+            if not mime:
+                mime = 'application/octet-stream'
+
+            with open(fs_path, 'rb') as f:
+                data = f.read()
+
+            # Gzip compress if client accepts it and file is compressible
+            accept_enc = self.headers.get('Accept-Encoding', '')
+            use_gzip   = 'gzip' in accept_enc and mime.startswith(('text/', 'application/json', 'application/javascript', 'image/svg'))
+            if use_gzip:
+                data = gzip.compress(data, compresslevel=6)
+
+            self.send_response(200)
+            self.send_header('Content-Type', mime)
+            self.send_header('Content-Length', str(len(data)))
+            self._cors()
+
+            # Cache static assets for 24 hours; HTML pages must not be cached
+            if ext in CACHEABLE_EXTENSIONS:
+                self.send_header('Cache-Control', 'public, max-age=86400')
+            else:
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Pragma', 'no-cache')
+
+            if use_gzip:
+                self.send_header('Content-Encoding', 'gzip')
+
+            self.end_headers()
+            self.wfile.write(data)
+        except FileNotFoundError:
+            self._serve_file(os.path.join(FOLDER, 'index.html'), '/index.html')
+        except Exception as e:
+            print(f"  ERROR serving {fs_path}: {e}")
 
     def do_POST(self):
         if self.path.startswith('/api/'):
@@ -356,21 +394,15 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
             pass
 
     def send_error(self, code, message=None, explain=None):
-        # Only return JSON errors for API paths; for everything else
-        # let the parent handle it (or it will just serve index.html via do_GET fallback)
         if hasattr(self, 'path') and self.path and self.path.startswith('/api/'):
             self._json({'error': message or 'Server error', 'code': code}, code)
-        else:
-            # Suppress the default HTML error page — our do_GET fallback handles it
-            pass
 
 # ─────────────────────────────────────────────────────────────
-# Keep-alive ping — prevents Render free tier from sleeping
-# Pings /health every 14 minutes (Render sleeps after 15 min)
+# Keep-alive ping (unchanged — prevents Render free tier sleep)
 # ─────────────────────────────────────────────────────────────
 def keep_alive():
     import time, urllib.request
-    time.sleep(60)  # wait 1 min after startup before pinging
+    time.sleep(60)
     while True:
         try:
             url = os.environ.get('RENDER_EXTERNAL_URL', f'http://localhost:{PORT}')
@@ -378,8 +410,7 @@ def keep_alive():
             print('  PING   /health (keep-alive)')
         except Exception as e:
             print(f'  PING   failed: {e}')
-        time.sleep(840)  # 14 minutes
-
+        time.sleep(840)
 
 def get_local_ip():
     try:
@@ -392,25 +423,30 @@ def get_local_ip():
         return '127.0.0.1'
 
 # ─────────────────────────────────────────────────────────────
-# Start
+# FIX 1: ThreadingTCPServer — handles concurrent requests
+#         (logo + CSS + JS load IN PARALLEL, not one at a time)
 # ─────────────────────────────────────────────────────────────
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+    daemon_threads      = True   # threads die when main process exits
+
 if __name__ == '__main__':
     init_db()
-    is_cloud = 'PORT' in os.environ  # Railway / cloud sets PORT
+    is_cloud = 'PORT' in os.environ
 
     print("=" * 55)
-    print("   MANASA Events — Server")
+    print("   MANASA Events — Server (Render-Optimised)")
     print("=" * 55)
     if is_cloud:
         print(f"\n  Running on cloud  (port {PORT})")
         print(f"  Database : {DB_FILE}")
+        print(f"  Threaded : YES (parallel requests enabled)")
         print(f"  Keep-alive ping every 14 min to prevent sleep")
         threading.Thread(target=keep_alive, daemon=True).start()
     else:
         local_ip = get_local_ip()
         print(f"\n  Your URL     : http://localhost:{PORT}")
         print(f"  Friends URL  : http://{local_ip}:{PORT}   ← same WiFi only")
-        print(f"\n  For friends on different networks → deploy to Railway (see HOW_TO_RUN.txt)")
         print(f"\n  Press Ctrl+C to stop\n")
         print("-" * 55)
         def open_browser():
@@ -418,8 +454,7 @@ if __name__ == '__main__':
             webbrowser.open(f'http://localhost:{PORT}/index.html')
         threading.Thread(target=open_browser, daemon=True).start()
 
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(('', PORT), ManasaHandler) as httpd:
+    with ThreadedTCPServer(('', PORT), ManasaHandler) as httpd:
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
