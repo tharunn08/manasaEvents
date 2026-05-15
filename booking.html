@@ -373,17 +373,17 @@ function sendAdminNotifications(b) {
   var ADMIN = '917411038339';
 
   // Build WhatsApp message — literal UTF-8 emoji characters
-  var party    = '🎉';
-  var box      = '📦';
-  var person   = '👤';
-  var email_e  = '📧';
-  var phone_e  = '📱';
-  var ticket   = '🎫';
-  var calendar = '📅';
-  var pin      = '📍';
-  var tickets  = '🎟';
-  var money    = '💰';
-  var check    = '✅';
+  var party    = '\u{1F389}';
+  var box      = '\u{1F4E6}';
+  var person   = '\u{1F464}';
+  var email_e  = '\u{1F4E7}';
+  var phone_e  = '\u{1F4F1}';
+  var ticket   = '\u{1F3AB}';
+  var calendar = '\u{1F4C5}';
+  var pin      = '\u{1F4CD}';
+  var tickets  = '\u{1F39F}';
+  var money    = '\u{1F4B0}';
+  var check    = '\u2705';
   var dash     = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
   var waMsg =
     party    + ' *NEW BOOKING \u2014 MANASA Events*\n' +
@@ -412,7 +412,7 @@ function sendAdminNotifications(b) {
     'Total: '   + b.total   + '\n' +
     'Status: CONFIRMED';
 
-  var waUrl  = 'https://wa.me/' + ADMIN + '?text=' + encodeURIComponent(waMsg);
+  var waUrl  = 'https://api.whatsapp.com/send?phone=' + ADMIN + '&text=' + encodeURIComponent(waMsg);
   var smsUrl = 'sms:+' + ADMIN + '?body=' + encodeURIComponent(smsMsg);
 
   // Wire fallback links

@@ -303,6 +303,10 @@ class ManasaHandler(http.server.SimpleHTTPRequestHandler):
             mime, _ = mimetypes.guess_type(fs_path)
             if not mime:
                 mime = 'application/octet-stream'
+            # Always declare UTF-8 for all text types so emojis render correctly
+            if mime.startswith('text/') or mime in ('application/javascript', 'application/json'):
+                if 'charset' not in mime:
+                    mime = mime + '; charset=utf-8'
 
             with open(fs_path, 'rb') as f:
                 data = f.read()
